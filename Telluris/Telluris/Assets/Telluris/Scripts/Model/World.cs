@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-public class World
+public class World : ITickable
 {
     public struct Config
     {
@@ -29,6 +29,9 @@ public class World
             this.grassAmount = 0;
         }
     }
+
+    /** Indexed by positionIndex */
+    public HashSet<Animal>[] animals;
 
     Cell[] cells;
     private Config _config;
@@ -91,13 +94,18 @@ public class World
         }
     }
 
-    internal void Tick(int iterations = 1)
+    internal void Tick(int iterations)
     {
         for (int i = 0; i < iterations; i++)
         {
-            SpreadGrass();
+            Tick();
         }
     }
+
+    public void Tick()
+    {
+		SpreadGrass();
+	}
 
     private void SpreadWater()
     {
@@ -108,7 +116,7 @@ public class World
 				var rand = random.NextDouble();
 				var landType = (rand < 0.1f) ? LandType.Water : LandType.Dirt;
 
-				cells[GetIndexFor(x, y)] = new Cell(x, y, landType);
+				cells[GetPositionIndexFor(x, y)] = new Cell(x, y, landType);
             }
         }
     }
@@ -120,11 +128,11 @@ public class World
             return border;
         }
 
-        int index = GetIndexFor(x, y);
+        int index = GetPositionIndexFor(x, y);
         return cells[index];
     }
 
-    private int GetIndexFor(int x, int y)
+    private int GetPositionIndexFor(int x, int y)
     {
         return x + y * _config.width;
     }

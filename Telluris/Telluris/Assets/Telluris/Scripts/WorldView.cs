@@ -4,8 +4,10 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class WorldView : MonoBehaviour {
+	[SerializeField]
+	GameObject landSpritePrefab;
     [SerializeField]
-    SpriteRenderer landSpritePrefab;
+    Sprite[] animalSprites;
 
 	World world;
 
@@ -25,8 +27,8 @@ public class WorldView : MonoBehaviour {
     private void CreateWorld()
     {
         var config = new World.Config();
-        config.width = 8;
-        config.height = 8;
+        config.width = 18;
+        config.height = 18;
         world = new World();
         world.Create(config);
     }
@@ -39,10 +41,11 @@ public class WorldView : MonoBehaviour {
         {
             for (int x = 0; x < world.config.width; x++)
             {
-                var gameObject = (GameObject)GameObject.Instantiate(landSpritePrefab.gameObject);
-                var sprite = gameObject.GetComponent<SpriteRenderer>();
+                var spriteGO = (GameObject)UnityEngine.Object.Instantiate(landSpritePrefab.gameObject);
+                var sprite = spriteGO.GetComponent<SpriteRenderer>();
                 SetSpritePosition(sprite, x, y);
                 landSprites.Add(sprite);
+                spriteGO.transform.parent = this.transform;
             }
         }
         UpdateLandSprites();
@@ -62,10 +65,7 @@ public class WorldView : MonoBehaviour {
 				{
 					case World.LandType.Dirt:
 						sprite.color = new Color(0.3f, 0.2f, 0.0f);
-						//if (cell.grassAmount > 0)
-						{
-							sprite.color = Color.Lerp(sprite.color, Color.green, cell.grassAmount / 100f);
-						}
+						sprite.color = Color.Lerp(sprite.color, Color.green, cell.grassAmount / 100f);
 						break;
 					case World.LandType.Impassable:
 						sprite.color = new Color(0.2f, 0.2f, 0.2f);
