@@ -49,7 +49,10 @@ public class World : ITickable
     public void Create(Config config)
     {
         this._config = config;
-        cells = new Cell[config.width * config.height];
+        var numCells = config.width * config.height;
+        cells = new Cell[numCells];
+        animals = new HashSet<Animal>[numCells];
+        for (var i = 0; i < numCells; i++) animals[i] = new HashSet<Animal>();
 
         border = new Cell(-1, -1, LandType.Impassable);
         random = new System.Random();
@@ -105,7 +108,20 @@ public class World : ITickable
     public void Tick()
     {
 		SpreadGrass();
+        SpawnAnimals();
 	}
+
+    private void SpawnAnimals()
+    {
+        var rand = random.NextDouble();
+        if (rand < 0.05f) {
+			int x = (int)(random.NextDouble() * config.width);
+			int y = (int)(random.NextDouble() * config.height);
+            int pos = GetPositionIndexFor(x, y);
+            var animal = new Animal(this, x, y);
+            animals[pos].Add(animal);
+        }
+    }
 
     private void SpreadWater()
     {

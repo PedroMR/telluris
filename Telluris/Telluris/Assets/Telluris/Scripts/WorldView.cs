@@ -7,13 +7,20 @@ public class WorldView : MonoBehaviour {
 	[SerializeField]
 	GameObject landSpritePrefab;
     [SerializeField]
-    Sprite[] animalSprites;
+    Sprite[] animalSpritePrefabs;
+    [SerializeField]
+    GameObject animalPrefab;
 
 	World world;
 
     List<SpriteRenderer> landSprites;
+    Dictionary<Animal, GameObject> animalSprites;
 
     const float TIME_BETWEEN_TICKS = 0.5f;
+
+    const int Z_LAND = 10;
+    const int Z_ANIMALS = 1;
+
 
     float timeSinceLastTick = 0f;
 
@@ -22,6 +29,8 @@ public class WorldView : MonoBehaviour {
     {
         CreateWorld();
         CreateLandSprites();
+
+        animalSprites = new Dictionary<Animal, GameObject>();
     }
     
     private void CreateWorld()
@@ -42,10 +51,10 @@ public class WorldView : MonoBehaviour {
             for (int x = 0; x < world.config.width; x++)
             {
                 var spriteGO = (GameObject)UnityEngine.Object.Instantiate(landSpritePrefab.gameObject);
+				spriteGO.transform.parent = this.transform;
                 var sprite = spriteGO.GetComponent<SpriteRenderer>();
-                SetSpritePosition(sprite, x, y);
+                SetSpritePosition(sprite, x, y, Z_LAND);
                 landSprites.Add(sprite);
-                spriteGO.transform.parent = this.transform;
             }
         }
         UpdateLandSprites();
@@ -80,18 +89,46 @@ public class WorldView : MonoBehaviour {
 
 
 
-	private void SetSpritePosition(SpriteRenderer sprite, int x, int y)
+	private void SetSpritePosition(SpriteRenderer sprite, int x, int y, int zLayer)
     {
-        sprite.transform.position = new Vector3(x - world.config.width/2, y - world.config.height / 2, 0);
+        sprite.transform.position = new Vector3(x - world.config.width/2, y - world.config.height / 2, zLayer);
     }
 
     // Update is called once per frame
     void Update () {
+        bool ticked = false;
         timeSinceLastTick += Time.fixedDeltaTime;
         while (timeSinceLastTick > TIME_BETWEEN_TICKS) {
             timeSinceLastTick -= TIME_BETWEEN_TICKS;
 			world.Tick(1);
+            ticked = true;
         }
-        UpdateLandSprites();
+
+        if (ticked)
+        {
+            UpdateLandSprites();
+            UpdateAnimalSprites();
+        }
+	}
+
+    private void UpdateAnimalSprites()
+    {
+        foreach(var list in world.animals) {
+            foreach(var animal in list) {
+                UpdateAnimalSprite(animal);
+            }
+        }
+    }
+
+    private void UpdateAnimalSprite(Animal animal)
+    {
+        if (!animalSprites.ContainsKey(animal)) {
+            var newSpriteGO = (GameObject)UnityEngine.Object.Instantiate(animalPrefab);
+            animalSprites.Add(animal, newSpriteGO);
+            var newSprite = newSpriteGO.GetComponent<SpriteRenderer>();
+		}
+        var animalGO = animalSprites[animal];
+		var sprite = animalGO.GetComponent<SpriteRenderer>();
+        SetSpritePosition(sprite, animal.X, animal.Y, Z_ANIMALS);
 	}
 }

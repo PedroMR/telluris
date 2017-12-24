@@ -279,6 +279,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   landSpritePrefab: {fileID: 1694358996790682, guid: 009deab5904614ec585e86da266b41fd,
     type: 2}
-  animalSprites:
-  - {fileID: 21300000, guid: 8bf9ba5038c534f1981d456987a78f0d, type: 3}
-  - {fileID: 21300000, guid: ec0b62af4ff13404c8e369bdce0fb6a9, type: 3}
+  animalSpritePrefabs: []
+  animalPrefab: {fileID: 1175760268311120, guid: 322cecf7f697647df9e3e90dde3db523,
+    type: 2}

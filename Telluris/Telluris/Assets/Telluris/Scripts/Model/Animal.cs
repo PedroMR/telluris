@@ -7,8 +7,10 @@ public class Animal : ITickable
     private int _x, _y;
     private World _world;
 
-    public Animal(World world) {
+    public Animal(World world, int x, int y) {
         _world = world;
+        _x = x;
+        _y = y;
     }
 
     public int X
