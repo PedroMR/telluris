@@ -126,9 +126,15 @@ public class WorldView : MonoBehaviour {
             var newSpriteGO = (GameObject)UnityEngine.Object.Instantiate(animalPrefab);
             animalSprites.Add(animal, newSpriteGO);
             var newSprite = newSpriteGO.GetComponent<SpriteRenderer>();
+            // newSprite.sprite = ...
+            var animalView = newSpriteGO.AddComponent<AnimalView>();
+            animalView.animal = animal;
 		}
         var animalGO = animalSprites[animal];
 		var sprite = animalGO.GetComponent<SpriteRenderer>();
         SetSpritePosition(sprite, animal.X, animal.Y, Z_ANIMALS);
+
+        if (animal.Dead)
+            sprite.color = Color.red;
 	}
 }

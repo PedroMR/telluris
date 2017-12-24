@@ -109,12 +109,22 @@ public class World : ITickable
     {
 		SpreadGrass();
         SpawnAnimals();
+        TickAnimals();
 	}
+
+    private void TickAnimals()
+    {
+        foreach(var pos in animals) {
+            foreach(var animal in pos) {
+                animal.Tick(); 
+            }
+        }
+    }
 
     private void SpawnAnimals()
     {
         var rand = random.NextDouble();
-        if (rand < 0.05f) {
+        if (rand < 0.5f) {
 			int x = (int)(random.NextDouble() * config.width);
 			int y = (int)(random.NextDouble() * config.height);
             int pos = GetPositionIndexFor(x, y);
