@@ -8,8 +8,14 @@ public class Animal : ITickable
     private int _x, _y;
     private World _world;
 
-    private int hunger = 0;
+    private float hunger = 0f;
     private bool _dead;
+
+	private const int mouthSize = 10;
+	private const int maxHunger = 20;
+	private const float energyEfficiency = 1;
+    private const int stomachSize = 20;
+    private const float hungerPerTick = 0.5f;
 
     public Animal(World world, int x, int y)
     {
@@ -48,17 +54,18 @@ public class Animal : ITickable
 
         var myCell = _world.GetCellAt(X, Y);
 
-        hunger++;
+        hunger += hungerPerTick;
 
         if (myCell.grassAmount > 0 && hunger > 0)
         {
-            hunger -= Mathf.Min(myCell.grassAmount, 10);
-            myCell.grassAmount -= 10;
+            var amountEaten = Mathf.Min(myCell.grassAmount, mouthSize);
+            hunger -= (amountEaten * energyEfficiency);
+            myCell.grassAmount -= amountEaten;
         }
 
-        hunger = Mathf.Clamp(hunger, 0, 100);
+        hunger = Mathf.Clamp(hunger, -stomachSize, maxHunger);
 
-        if (hunger >= 20)
+        if (hunger >= maxHunger)
         {
             Die();
         }

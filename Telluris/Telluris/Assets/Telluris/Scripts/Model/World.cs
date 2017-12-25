@@ -127,9 +127,12 @@ public class World : ITickable
         if (rand < 0.5f) {
 			int x = (int)(random.NextDouble() * config.width);
 			int y = (int)(random.NextDouble() * config.height);
-            int pos = GetPositionIndexFor(x, y);
-            var animal = new Animal(this, x, y);
-            animals[pos].Add(animal);
+            if (GetCellAt(x, y).landType == LandType.Dirt)
+            {
+				int pos = GetPositionIndexFor(x, y);
+                var animal = new Animal(this, x, y);
+                animals[pos].Add(animal);
+            }
         }
     }
 
