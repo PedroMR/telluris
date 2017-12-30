@@ -89,9 +89,14 @@ public class WorldView : MonoBehaviour {
 
 
 
-	private void SetSpritePosition(SpriteRenderer sprite, int x, int y, int zLayer)
+	private void SetSpritePosition(SpriteRenderer sprite, int x, int y, int zLayer, float offsetX = 0, float offsetY = 0)
     {
-        sprite.transform.position = new Vector3(x - world.config.width/2, y - world.config.height / 2, zLayer);
+		var minOffset = -0.3f;
+		var maxOffset = 0.3f;
+		offsetX = Mathf.Lerp(minOffset, maxOffset, offsetX);
+		offsetY = Mathf.Lerp(minOffset, maxOffset, offsetY);
+
+        sprite.transform.position = new Vector3(x - world.config.width / 2 + offsetX, y - world.config.height / 2 + offsetY, zLayer);
     }
 
     // Update is called once per frame
@@ -127,12 +132,15 @@ public class WorldView : MonoBehaviour {
             animalSprites.Add(animal, newSpriteGO);
             var newSprite = newSpriteGO.GetComponent<SpriteRenderer>();
             // newSprite.sprite = ...
-            var animalView = newSpriteGO.AddComponent<AnimalView>();
-            animalView.animal = animal;
+            var newAnimalView = newSpriteGO.AddComponent<AnimalView>();
+            newAnimalView.animal = animal;
+            newAnimalView.scale = 0.5f;
+            newSpriteGO.transform.localScale = Vector3.one * newAnimalView.scale;
 		}
         var animalGO = animalSprites[animal];
 		var sprite = animalGO.GetComponent<SpriteRenderer>();
-        SetSpritePosition(sprite, animal.X, animal.Y, Z_ANIMALS);
+		var animalView = animalGO.GetComponent<AnimalView>();
+        SetSpritePosition(sprite, animal.X, animal.Y, Z_ANIMALS, animalView.offsetX, animalView.offsetY);
 
         if (animal.Dead)
             sprite.color = Color.red;

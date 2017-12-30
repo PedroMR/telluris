@@ -3,7 +3,7 @@ using System.Collections;
 using System;
 
 [Serializable]
-public class Animal : ITickable
+public class Animal : ITickable, ISpawner
 {
     private int _x, _y;
     private World _world;
@@ -16,6 +16,9 @@ public class Animal : ITickable
 	private const float energyEfficiency = 1;
     private const int stomachSize = 20;
     private const float hungerPerTick = 0.5f;
+    private const float maxHungerToReproduce = 5f;
+    private const float chanceToReproduce = 0.1f;
+    private const float hungerFromReproducing = 7f;
 
     public Animal(World world, int x, int y)
     {
@@ -69,11 +72,29 @@ public class Animal : ITickable
         {
             Die();
         }
+
+        ConsiderSpawning();
+    }
+
+    private void Reproduce()
+    {
+        _world.CreateOffspringOf(this);
     }
 
     public void Die()
     {
         _dead = true;
     }
+
+    public void ConsiderSpawning()
+    {
+		if (hunger < maxHungerToReproduce)
+		{
+			if (new System.Random().NextDouble() < chanceToReproduce)
+			{
+				Reproduce();
+			}
+		}
+	}
 }
 

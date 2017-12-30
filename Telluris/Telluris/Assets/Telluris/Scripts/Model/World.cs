@@ -32,6 +32,7 @@ public class World : ITickable
 
     /** Indexed by positionIndex */
     public HashSet<Animal>[] animals;
+    public Dictionary<Animal, int> offspringPositions;
 
     Cell[] cells;
     private Config _config;
@@ -54,13 +55,15 @@ public class World : ITickable
         animals = new HashSet<Animal>[numCells];
         for (var i = 0; i < numCells; i++) animals[i] = new HashSet<Animal>();
 
+        offspringPositions = new Dictionary<Animal, int>();
+
         border = new Cell(-1, -1, LandType.Impassable);
         random = new System.Random();
 
         SpreadWater();
         SpreadGrass(10);
-
-    }
+		SpawnAnimals();
+	}
 
     private void SpreadGrass(int iterations = 1)
     {
@@ -97,6 +100,23 @@ public class World : ITickable
         }
     }
 
+    internal void CreateOffspringOf(Animal animal)
+    {
+        var child = new Animal(this, animal.X, animal.Y);
+        int pos = GetPositionIndexFor(animal.X, animal.Y);
+
+        offspringPositions.Add(child, pos);
+    }
+
+    void AddQueuedOffspring()
+    {
+        foreach (var child in offspringPositions.Keys) {
+            animals[offspringPositions[child]].Add(child);
+        }
+
+        offspringPositions.Clear();
+	}
+
     internal void Tick(int iterations)
     {
         for (int i = 0; i < iterations; i++)
@@ -108,8 +128,8 @@ public class World : ITickable
     public void Tick()
     {
 		SpreadGrass();
-        SpawnAnimals();
         TickAnimals();
+        AddQueuedOffspring();
 	}
 
     private void TickAnimals()
@@ -123,8 +143,9 @@ public class World : ITickable
 
     private void SpawnAnimals()
     {
-        var rand = random.NextDouble();
-        if (rand < 0.5f) {
+        int count = 0;
+
+        while (count < 4) {
 			int x = (int)(random.NextDouble() * config.width);
 			int y = (int)(random.NextDouble() * config.height);
             if (GetCellAt(x, y).landType == LandType.Dirt)
@@ -132,6 +153,7 @@ public class World : ITickable
 				int pos = GetPositionIndexFor(x, y);
                 var animal = new Animal(this, x, y);
                 animals[pos].Add(animal);
+                count++;
             }
         }
     }
