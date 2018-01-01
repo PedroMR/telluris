@@ -89,7 +89,7 @@ public class WorldView : MonoBehaviour {
 
 
 
-	private void SetSpritePosition(SpriteRenderer sprite, int x, int y, int zLayer, float offsetX = 0, float offsetY = 0)
+	private void SetSpritePosition(SpriteRenderer sprite, int x, int y, int zLayer, float offsetX = 0.5f, float offsetY = 0.5f)
     {
 		var minOffset = -0.3f;
 		var maxOffset = 0.3f;
@@ -118,10 +118,8 @@ public class WorldView : MonoBehaviour {
 
     private void UpdateAnimalSprites()
     {
-        foreach(var list in world.animals) {
-            foreach(var animal in list) {
-                UpdateAnimalSprite(animal);
-            }
+        foreach(var animal in world.allAnimals) {
+            UpdateAnimalSprite(animal);
         }
     }
 

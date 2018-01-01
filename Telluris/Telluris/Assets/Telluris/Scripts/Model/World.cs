@@ -31,8 +31,9 @@ public class World : ITickable
     }
 
     /** Indexed by positionIndex */
-    public HashSet<Animal>[] animals;
+    public HashSet<Animal>[] animalPositions;
     public Dictionary<Animal, int> offspringPositions;
+    public HashSet<Animal> allAnimals;
 
     Cell[] cells;
     private Config _config;
@@ -52,8 +53,9 @@ public class World : ITickable
         this._config = config;
         var numCells = config.width * config.height;
         cells = new Cell[numCells];
-        animals = new HashSet<Animal>[numCells];
-        for (var i = 0; i < numCells; i++) animals[i] = new HashSet<Animal>();
+        animalPositions = new HashSet<Animal>[numCells];
+        for (var i = 0; i < numCells; i++) animalPositions[i] = new HashSet<Animal>();
+        allAnimals = new HashSet<Animal>();
 
         offspringPositions = new Dictionary<Animal, int>();
 
@@ -100,6 +102,15 @@ public class World : ITickable
         }
     }
 
+    internal void MoveAnimalTo(Animal animal, int x, int y)
+    {
+		int sourcePos = GetPositionIndexFor(animal.X, animal.Y);
+        int targetPos = GetPositionIndexFor(x, y);
+
+        animalPositions[sourcePos].Remove(animal);
+        animalPositions[targetPos].Add(animal);
+	}
+
     internal void CreateOffspringOf(Animal animal)
     {
         var child = new Animal(this, animal.X, animal.Y);
@@ -111,7 +122,8 @@ public class World : ITickable
     void AddQueuedOffspring()
     {
         foreach (var child in offspringPositions.Keys) {
-            animals[offspringPositions[child]].Add(child);
+            animalPositions[offspringPositions[child]].Add(child);
+            allAnimals.Add(child);
         }
 
         offspringPositions.Clear();
@@ -134,10 +146,8 @@ public class World : ITickable
 
     private void TickAnimals()
     {
-        foreach(var pos in animals) {
-            foreach(var animal in pos) {
-                animal.Tick(); 
-            }
+        foreach(var animal in allAnimals) {
+            animal.Tick(); 
         }
     }
 
@@ -150,13 +160,26 @@ public class World : ITickable
 			int y = (int)(random.NextDouble() * config.height);
             if (GetCellAt(x, y).landType == LandType.Dirt)
             {
-				int pos = GetPositionIndexFor(x, y);
                 var animal = new Animal(this, x, y);
-                animals[pos].Add(animal);
+                AddAnimal(animal, x, y);
                 count++;
             }
         }
     }
+
+    private void AddAnimal(Animal animal, int x, int y)
+    {
+        int pos = GetPositionIndexFor(x, y);
+        animalPositions[pos].Add(animal);
+        allAnimals.Add(animal);
+    }
+
+    private void RemoveAnimal(Animal animal)
+    {
+		int pos = GetPositionIndexFor(animal.X, animal.Y);
+        animalPositions[pos].Remove(animal);
+        allAnimals.Remove(animal);
+	}
 
     private void SpreadWater()
     {
