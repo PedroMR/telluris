@@ -1,6 +1,9 @@
 using System.Collections;
 
-public interface ITickable
+namespace com.pedromr.telluris.model
 {
-    void Tick();
+	public interface ITickable
+	{
+		void Tick();
+	}
 }

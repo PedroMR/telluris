@@ -1,7 +1,10 @@
 using UnityEngine;
 using System.Collections;
 
-public interface ISpawner 
+namespace com.pedromr.telluris.model
 {
-    void ConsiderSpawning();
+	public interface ISpawner
+	{
+		void ConsiderSpawning();
+	}
 }
