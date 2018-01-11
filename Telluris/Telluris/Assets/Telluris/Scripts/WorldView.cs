@@ -16,7 +16,8 @@ public class WorldView : MonoBehaviour {
     List<SpriteRenderer> landSprites;
     Dictionary<Animal, GameObject> animalSprites;
 
-    const float TIME_BETWEEN_TICKS = 0.5f;
+	[SerializeField]
+    private float TIME_BETWEEN_TICKS = 0.1f;
 
     const int Z_LAND = 10;
     const int Z_ANIMALS = 1;
@@ -96,7 +97,7 @@ public class WorldView : MonoBehaviour {
 		offsetX = Mathf.Lerp(minOffset, maxOffset, offsetX);
 		offsetY = Mathf.Lerp(minOffset, maxOffset, offsetY);
 
-        sprite.transform.position = new Vector3(x - world.config.width / 2 + offsetX, y - world.config.height / 2 + offsetY, zLayer);
+        sprite.transform.position = new Vector3(x - world.config.width / 2 + offsetX, y - world.config.height / 2 + offsetY + 0.5f, zLayer);
     }
 
     // Update is called once per frame
@@ -104,7 +105,7 @@ public class WorldView : MonoBehaviour {
         bool ticked = false;
         timeSinceLastTick += Time.fixedDeltaTime;
         while (timeSinceLastTick > TIME_BETWEEN_TICKS) {
-            timeSinceLastTick -= TIME_BETWEEN_TICKS;
+			timeSinceLastTick -= Mathf.Max(0.0005f, TIME_BETWEEN_TICKS);
 			world.Tick(1);
             ticked = true;
         }
@@ -118,9 +119,17 @@ public class WorldView : MonoBehaviour {
 
     private void UpdateAnimalSprites()
     {
+		var untickedAnimals = new HashSet<GameObject>(animalSprites.Values);
+
         foreach(var animal in world.allAnimals) {
             UpdateAnimalSprite(animal);
+
+			untickedAnimals.Remove(animalSprites[animal]);
         }
+
+		foreach(var animalSprite in untickedAnimals) {
+			GameObject.Destroy(animalSprite);
+		}
     }
 
     private void UpdateAnimalSprite(Animal animal)
@@ -140,7 +149,8 @@ public class WorldView : MonoBehaviour {
 		var animalView = animalGO.GetComponent<AnimalView>();
         SetSpritePosition(sprite, animal.X, animal.Y, Z_ANIMALS, animalView.offsetX, animalView.offsetY);
 
-        if (animal.Dead)
-            sprite.color = Color.red;
+		if (animal.Dead) {
+			sprite.color = new Color(1, 0, 0, animal.PercentDecayed);
+		}
 	}
 }

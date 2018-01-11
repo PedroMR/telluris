@@ -30,10 +30,16 @@ public class World : ITickable
         }
     }
 
-    /** Indexed by positionIndex */
-    public HashSet<Animal>[] animalPositions;
+	private const double CHANCE_GRASS_FROM_WATER = 0.05;
+	private const double CHANCE_GRASS_FROM_GRASS = 0.03;
+	private const float MAX_GRASS = 100;
+	private const int INITIAL_GRASS_ITERATIONS = 100;
+
+	/** Indexed by positionIndex */
+	public HashSet<Animal>[] animalPositions;
     public Dictionary<Animal, int> offspringPositions;
-    public HashSet<Animal> allAnimals;
+	public HashSet<Animal> allAnimals;
+	public HashSet<Animal> decayedAnimals = new HashSet<Animal>();
 
     Cell[] cells;
     private Config _config;
@@ -63,7 +69,7 @@ public class World : ITickable
         random = new System.Random();
 
         SpreadWater();
-        SpreadGrass(10);
+		SpreadGrass(INITIAL_GRASS_ITERATIONS);
 		SpawnAnimals();
 	}
 
@@ -85,17 +91,22 @@ public class World : ITickable
                     {
                         for (var dx = -1; dx <= +1; dx++)
                         {
-                            if (dy * dy + dx * dx > 1) continue;
+                            if (dy * dy + dx * dx > 1) continue; // avoid diagonals
+
 							neighbor = GetCellAt(x+dx, y+dy);
-							if (neighbor.grassAmount > 0) chanceOfGrass += 0.03;
-							if (neighbor.landType == LandType.Water) chanceOfGrass += 0.05;
+							if (neighbor.grassAmount > 0)
+							{
+								int divider = (dx == dy) ? 1 : 4; // is it us?
+								chanceOfGrass += (neighbor.grassAmount / MAX_GRASS) * CHANCE_GRASS_FROM_GRASS / divider;
+							}
+							if (neighbor.landType == LandType.Water) chanceOfGrass += CHANCE_GRASS_FROM_WATER;
 						}
                     }
 
 
 					var rand = random.NextDouble();
                     if (rand < chanceOfGrass) {
-                        thisCell.grassAmount = Math.Min(100, thisCell.grassAmount + 2);
+						thisCell.grassAmount = Math.Min((int)MAX_GRASS, thisCell.grassAmount + 2);
                     }					
                 }
             }
@@ -142,9 +153,19 @@ public class World : ITickable
 		SpreadGrass();
         TickAnimals();
         AddQueuedOffspring();
+		RemoveDecayedAnimals();
 	}
 
-    private void TickAnimals()
+	private void RemoveDecayedAnimals()
+	{
+		foreach (var animal in decayedAnimals)
+		{
+			RemoveAnimal(animal);
+		}
+		decayedAnimals.Clear();
+	}
+
+	private void TickAnimals()
     {
         foreach(var animal in allAnimals) {
             animal.Tick(); 
@@ -179,6 +200,11 @@ public class World : ITickable
 		int pos = GetPositionIndexFor(animal.X, animal.Y);
         animalPositions[pos].Remove(animal);
         allAnimals.Remove(animal);
+	}
+
+	public void QueueAnimalForRemoval(Animal animal)
+	{
+		decayedAnimals.Add(animal);
 	}
 
     private void SpreadWater()

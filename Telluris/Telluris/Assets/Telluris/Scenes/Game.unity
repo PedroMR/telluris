@@ -282,3 +282,4 @@ MonoBehaviour:
   animalSpritePrefabs: []
   animalPrefab: {fileID: 1175760268311120, guid: 322cecf7f697647df9e3e90dde3db523,
     type: 2}
+  TIME_BETWEEN_TICKS: 0.1

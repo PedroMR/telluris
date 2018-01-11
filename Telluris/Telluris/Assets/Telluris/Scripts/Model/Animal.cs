@@ -19,8 +19,10 @@ public class Animal : ITickable, ISpawner
     private const float maxHungerToReproduce = 1f;
     private const float chanceToReproduce = 0.1f;
     private const float hungerFromReproducing = 7f;
+	private const int TICKS_UNTIL_DECAY = 20;
+	private int ticksUntilDecay;
 
-    public Animal(World world, int x, int y)
+	public Animal(World world, int x, int y)
     {
         _world = world;
         _x = x;
@@ -51,9 +53,23 @@ public class Animal : ITickable, ISpawner
         }
     }
 
+	public float PercentDecayed
+	{
+		get{
+			return ticksUntilDecay / (float)TICKS_UNTIL_DECAY;
+		}
+	}
+
     public void Tick()
     {
-        if (_dead) return;
+		if (_dead)
+		{
+			ticksUntilDecay--;
+			if (ticksUntilDecay <= 0) {
+				_world.QueueAnimalForRemoval(this);
+			}
+			return;
+		}
 
 
         hunger += hungerPerTick;
@@ -125,6 +141,7 @@ public class Animal : ITickable, ISpawner
     public void Die()
     {
         _dead = true;
+		ticksUntilDecay = TICKS_UNTIL_DECAY;
     }
 
     public void ConsiderSpawning()
