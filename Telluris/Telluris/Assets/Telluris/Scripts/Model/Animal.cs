@@ -17,7 +17,7 @@ public class Animal : ITickable, ISpawner
     private const int stomachSize = 20;
     private const float hungerPerTick = 0.5f;
     private const float maxHungerToReproduce = 1f;
-    private const float chanceToReproduce = 0.1f;
+    private const float chanceToReproduce = 0.05f;
     private const float hungerFromReproducing = 7f;
 	private const int TICKS_UNTIL_DECAY = 20;
 	private int ticksUntilDecay;
@@ -114,9 +114,11 @@ public class Animal : ITickable, ISpawner
         var neighbor = _world.GetCellAt(X + dx, Y + dy);
         if (neighbor.landType == World.LandType.Dirt)
         {
-            _world.MoveAnimalTo(this, X + dx, Y + dy);
-            this._x = X + dx;
-            this._y = Y + dy;
+			var newX = _world.GetFixedX(X + dx);
+			var newY = _world.GetFixedY(Y + dy);
+            _world.MoveAnimalTo(this, newX, newY);
+			this._x = newX;
+			this._y = newY;
 		}
     }
 

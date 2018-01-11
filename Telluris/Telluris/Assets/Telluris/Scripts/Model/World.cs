@@ -221,8 +221,14 @@ public class World : ITickable
         }
     }
 
+	public int GetFixedX(int x) { return Util.mod(x, _config.width); }
+	public int GetFixedY(int y) { return Util.mod(y, _config.height); }
+
     public Cell GetCellAt(int x, int y)
     {
+		x = GetFixedX(x);
+		y = GetFixedY(y);
+
         if (x < 0 || x >= _config.width || y < 0 || y >= _config.height)
         {
             return border;
@@ -234,6 +240,8 @@ public class World : ITickable
 
     private int GetPositionIndexFor(int x, int y)
     {
+		x = GetFixedX(x);
+		y = GetFixedY(y);
         return x + y * _config.width;
     }
 }
