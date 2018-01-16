@@ -12,3 +12,4 @@
   * Patterns that make feed behaviour, larger numbers require larger sequences
   * Lots of noisy padding and in-betweens? But still functioning
 * Multiple worlds at once
+* Seasons

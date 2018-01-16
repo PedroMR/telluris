@@ -17,6 +17,11 @@ namespace com.pedromr.telluris.model
 			Water
 		}
 
+		public struct WorldInfo {
+			public long ticks;
+			public long births, deaths;
+		}
+
 		public class Cell
 		{
 			public int x, y;
@@ -46,13 +51,13 @@ namespace com.pedromr.telluris.model
 		Cell[] cells;
 		private Config _config;
 		private Cell border;
-		Random random;
+		public Random random;
 
-		private long _ticks;
+		private WorldInfo _info = new WorldInfo();
 
 		public long Ticks
 		{
-			get { return _ticks; }
+			get { return _info.ticks; }
 		}
 
 		public Config config
@@ -60,6 +65,14 @@ namespace com.pedromr.telluris.model
 			get
 			{
 				return _config;
+			}
+		}
+
+		public WorldInfo Info
+		{
+			get
+			{
+				return _info;
 			}
 		}
 
@@ -80,6 +93,8 @@ namespace com.pedromr.telluris.model
 			SpreadWater();
 			SpreadGrass(INITIAL_GRASS_ITERATIONS);
 			SpawnAnimals();
+
+            _info.ticks = 0;
 		}
 
 		private void SpreadGrass(int iterations = 1)
@@ -146,6 +161,7 @@ namespace com.pedromr.telluris.model
 			{
 				animalPositions[offspringPositions[child]].Add(child);
 				allAnimals.Add(child);
+				_info.births++;
 			}
 
 			offspringPositions.Clear();
@@ -161,6 +177,7 @@ namespace com.pedromr.telluris.model
 
 		public void Tick()
 		{
+            _info.ticks++;
 			SpreadGrass();
 			TickAnimals();
 			AddQueuedOffspring();
@@ -194,11 +211,18 @@ namespace com.pedromr.telluris.model
 				int y = (int)(random.NextDouble() * config.height);
 				if (GetCellAt(x, y).landType == LandType.Dirt)
 				{
-					var animal = new Animal(this, x, y);
-					AddAnimal(animal, x, y);
+					CreateAnimalAt(x, y);
 					count++;
 				}
 			}
+		}
+
+		private Animal CreateAnimalAt(int x, int y)
+		{
+			var animal = new Animal(this, x, y);
+			AddAnimal(animal, x, y);
+			_info.births++;
+			return animal;
 		}
 
 		private void AddAnimal(Animal animal, int x, int y)
@@ -218,6 +242,7 @@ namespace com.pedromr.telluris.model
 		public void QueueAnimalForRemoval(Animal animal)
 		{
 			decayedAnimals.Add(animal);
+			_info.deaths++;
 		}
 
 		private void SpreadWater()

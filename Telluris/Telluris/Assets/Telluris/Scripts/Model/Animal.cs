@@ -19,7 +19,7 @@ namespace com.pedromr.telluris.model {
 	    private const float maxHungerToReproduce = 1f;
 	    private const float chanceToReproduce = 0.05f;
 	    private const float hungerFromReproducing = 7f;
-		private const int TICKS_UNTIL_DECAY = 20;
+		private const int TICKS_UNTIL_DECAY = 8;
 		private int ticksUntilDecay;
 
 		public Animal(World world, int x, int y)
@@ -87,7 +87,7 @@ namespace com.pedromr.telluris.model {
 
 	    private void ConsiderMoving()
 	    {
-	        var rand = new System.Random().NextDouble();
+			var rand = _world.random.NextDouble();
 	        var chanceToMove = 0.2f;
 	        World.Cell neighbor;
 			for (var dy = -1; dy <= +1; dy++)
@@ -150,7 +150,7 @@ namespace com.pedromr.telluris.model {
 	    {
 			if (hunger < maxHungerToReproduce)
 			{
-	            var rand = (new System.Random()).NextDouble();
+				var rand = _world.random.NextDouble();
 				if (rand < chanceToReproduce)
 				{
 					Reproduce();

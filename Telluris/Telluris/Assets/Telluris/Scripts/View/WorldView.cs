@@ -4,11 +4,11 @@ using UnityEngine;
 
 public class WorldView : MonoBehaviour {
 	[SerializeField]
-	GameObject landSpritePrefab;
+    GameObject landSpritePrefab = null;
     [SerializeField]
-    Sprite[] animalSpritePrefabs;
+    Sprite[] animalSpritePrefabs = null;
     [SerializeField]
-    GameObject animalPrefab;
+    GameObject animalPrefab = null;
 
 	World world;
 
@@ -24,8 +24,16 @@ public class WorldView : MonoBehaviour {
 
     float timeSinceLastTick = 0f;
 
-	// Use this for initialization
-	void Awake ()
+    public World World
+    {
+        get
+        {
+            return world;
+        }
+    }
+
+    // Use this for initialization
+    void Awake ()
     {
         CreateWorld();
         CreateLandSprites();
@@ -135,6 +143,7 @@ public class WorldView : MonoBehaviour {
     {
         if (!animalSprites.ContainsKey(animal)) {
             var newSpriteGO = (GameObject)UnityEngine.Object.Instantiate(animalPrefab);
+            newSpriteGO.transform.parent = this.transform;
             animalSprites.Add(animal, newSpriteGO);
             var newSprite = newSpriteGO.GetComponent<SpriteRenderer>();
             // newSprite.sprite = ...
